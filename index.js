@@ -1,7 +1,15 @@
+/*
+ CHANGE LOG
+ 1) creazione codice interno a sendCodeForCreateClient()
+ 2) sendCodeForCreateClient(9 e callApi() chiamano callback(error, result.statusCode, body) mentre prima ritornavano result e non result.statusCode
+ 3) Cambio nome classe da ClientTelegram a ApiSitter ma solo nell'export
+ 4) In tutti i metodi in cui veniva usata la callApi(9 ho chiamato i controlli che prima erano su reselt.statusCode e ora sono su result per modifica punto 2)
+ */
+
 'use strict';
 var request = require('request');
 var async=require('async');
-var statusCodeChangeDC=429;
+var statusCodeChangeDC=449;
 var timeoutDEfault=20000;
 var timeoutRetryDefault=2500;
 var timeoutRetrySocketDefault=1500;
@@ -61,11 +69,6 @@ function getRandomArbitrary(min, max) {
 
 ClientTelegram.prototype={
 
-    setClientTelegramAuthParameters:function(idClientTelegram, tokenClientTelegram){
-        this.idClientTelegram = idClientTelegram.toString();
-        this.tokenClientTelegram = tokenClientTelegram.toString();
-    },
-
     sendCodeForCreateClient:function(apiSitterEmail,apiSitterToken,phone,dialCode,callback){
         //in più devo salvare idClientTelegram e tokenClientTelegram con this.setClientTelegramAuth(idClientTelegram, tokenClientTelegram); uso idClientTelegram e tokenClientTelegram che mi ritorna la sendCode
         try{
@@ -100,7 +103,7 @@ ClientTelegram.prototype={
                     return callback("GENERIC_ERROR_API", null, err);
                 }
 
-                if(result.statusCode==429){
+                if(result.statusCode==statusCodeChangeDC){
                     this.dc=body.dc;
                     Debug.print("cambio DC to"+this.dc);
                     return this.sendCodeForCreateClient(apiSitterEmail,apiSitterToken,phone,dialCode,callback);
@@ -122,7 +125,10 @@ ClientTelegram.prototype={
         }
     },
 
-
+    setClientTelegramAuthParameters:function(idClientTelegram, tokenClientTelegram){
+        this.idClientTelegram = idClientTelegram.toString();
+        this.tokenClientTelegram = tokenClientTelegram.toString();
+    },
 
     getIdClientTelegram:function(){
         return this.idClientTelegram;
@@ -176,7 +182,7 @@ ClientTelegram.prototype={
                     }.bind(this),getRandomArbitrary(options.timeoutRetry,options.timeoutRetry+500));
                     return;
                 }
-                if(result.statusCode==429){
+                if(result.statusCode==statusCodeChangeDC){
                     Debug.print("finito chiamata API "+apiName);
                     Debug.print(body);
                     this.dc=body.dc;
