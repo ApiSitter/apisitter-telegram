@@ -32,7 +32,7 @@ function ApiSitter() {
                         return callback("GENERIC_ERROR_API", null, null);
                     }else if(this.status != 200) {
                         // Error in API (request code != 200);
-                        if(this.status==429){
+                        if(this.status==statusCodeChangeDC){
                             try{
                                 data = JSON.parse(this.responseText);
                                 refer.dc=data.dc;
@@ -98,7 +98,7 @@ function ApiSitter() {
                             refer.callApi(requestType, apiName, parameter, callback, options);
                         }.bind(this),getRandomArbitrary(options.timeoutRetry,options.timeoutRetry+500));
                     }else if(this.status != 200) {
-                        if(this.status==429){
+                        if(this.status==statusCodeChangeDC){
                             try{
                                 console.log(this.responseText);
                                 data = JSON.parse(this.responseText);
